@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, g
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from database_schema import Base, User, Category, Item
@@ -11,6 +11,11 @@ Base.metadata.bind = engine
 
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
+
+
+@app.route('/')
+def show_catalog():
+    return render_template('catalog.html')
 
 
 if __name__ == '__main__':
