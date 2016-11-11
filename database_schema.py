@@ -45,7 +45,8 @@ class Item(Base):
     created_by = Column(Integer, ForeignKey('users.id'))
     users = relationship(User)
     created_date = Column(DateTime, default=datetime.datetime.now)
-    last_updated = Column(DateTime, onupdate=datetime.datetime.now)
+    last_updated = Column(DateTime, default=datetime.datetime.now,
+                          onupdate=datetime.datetime.now)
 
 
 engine = create_engine('sqlite:///catalog.db')
