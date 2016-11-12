@@ -4,8 +4,10 @@
 <h2>{{ category.category }} ({{ items|length }} items)</h2>
 
 {% for i in items %}
-    <a href="{{ i.id }}"><img src="{{i.image}}"></a>
-    <p><a href="{{ i.id }}">{{ i.name }}</a></p>
+    <a href="{{ url_for('show_item', category_id=i.category_id,
+                item_id=i.id) }}"><img src="{{i.image}}">\</a>
+    <p><a href="{{ url_for('show_item', category_id=i.category_id,
+                   item_id=i.id) }}">{{ i.name }}</a></p>
 
 {% endfor %}
 {% endblock %}
