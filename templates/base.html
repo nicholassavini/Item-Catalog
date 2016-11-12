@@ -15,10 +15,22 @@
         </div>
         <ul class="nav nav-pills">
             <li role="presentation"><a href="/">Home</a></li>
-            <li role="presentation"><a href="/#">Keyboards</a></li>
-            <li role="presentation"><a href="/#">Keysets</a></li>
-            <li role="presentation"><a href="/#">Switches</a></li>
-            <li role="presentation"><a href="/#">Accessories</a></li>
+            <li role="presentation">
+                <a href="{{url_for('show_category', category_id=1)}}">
+                Keyboards</a>
+            </li>
+            <li role="presentation">
+                <a href="{{url_for('show_category', category_id=2)}}">
+                Keysets</a>
+            </li>
+            <li role="presentation">
+                <a href="{{url_for('show_category', category_id=3)}}">
+                Switches</a>
+            </li>
+            <li role="presentation">
+                <a href="{{url_for('show_category', category_id=4)}}">
+                Accessories</a>
+            </li>
         </ul>
         {% block content %}
         {% endblock %}
