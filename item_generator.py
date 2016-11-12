@@ -43,7 +43,7 @@ Item1 = Item(name="Whitefox", category_id=1, price=179.99, description="The Whit
              created_by=1)
 session.add(Item1)
 Item2 = Item(name="HHKB 2", category_id=1, price=249.99, description="The Happy Hacking Professional 2 (HHKB2) is a minimalist's dream come true; packing more features than a full size keyboard into a very small package. The HHKB2 still provides full-size keycaps, and uses Topre's unique capacitive tactile key switches for comfort and high reliability. PC and Mac friendly, the HHKB2 maintains its wide functionality by replacing lesser used keys with key combinations, which once you get the hang of it, you may never want to use a full size keyboard again; the HHKB2 even provides audio controls (Mac only) and a built-in 2-port USB 2.0 hub!",
-             image="https://elitekeyboards.com/products.php?sub=pfu_keyboards,hhkbpro2&pid=pdkb400b#",
+             image="https://elitekeyboards.com/proddata/images/th/pdkb400b_corner1000_th620x400.jpg",
              created_by=2)
 session.add(Item2)
 Item3 = Item(name="SA Grand Budapest", category_id=2, price=185.99, description="Designed by Madeo, the SA Grand Budapest set was made out of love for Grand Budapest the Movie. The set uses pink, purple, and red to create a very classical and modern color combination.",
