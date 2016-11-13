@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block title %}Edit {{ i.name }}{% endblock %}
+{% block content %}
+<h2>Edit {{ i.name }}</h2>
+<form method="post">
+    <div class="form-group">
+        <label for="name">Item Name</label>
+        <input type="text" class="form-control" id="name" value="{{ i.name }}">
+    </div>
+    <div class="form-group">
+        <label for="price">Price</label>
+        <input type="text" class="form-control" id="price"
+        value="{{ i.price }}">
+    </div>
+    <div class="form-group">
+        <label for="description">Description</label>
+        <textarea class="form-control" id="descrition" rows=6>{{ i.description }}
+        </textarea>
+    </div>
+    <div class="form-group">
+        <label for="image">Image</label>
+        <input type="file" class="form-control" id="image"
+        accept="image/png,image/jpg,image/jpeg">
+    </div>
+
+    <button type="submit" class="btn btn-default">Submit</button>
+</form>
+{% endblock %}

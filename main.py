@@ -55,7 +55,8 @@ def show_item(category_id, item_id):
 
 @app.route('/<int:category_id>/<int:item_id>/edit')
 def edit_item(category_id, item_id):
-    return "this will edit an item"
+    item = session.query(Item).filter_by(id=item_id).one()
+    return render_template("edit.html", i=item)
 
 
 @app.route('/<int:category_id>/<int:item_id>/delete')
