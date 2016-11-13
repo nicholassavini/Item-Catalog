@@ -1,0 +1,8 @@
+{% extends 'base.html' %}
+{% block title %}Delete {{ i.name }}{% endblock %}
+{% block content %}
+<h2>Are you sure you want to delete {{ i.name }}?</h2>
+<form method="post">
+    <button type="submit" class="btn btn-default">Yes</button>
+</form>
+{% endblock %}
