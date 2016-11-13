@@ -32,6 +32,10 @@ def logout():
     return "This will log the user out"
 
 
+@app.route('/new')
+def create_item():
+    return "This will create an item"
+
 
 @app.route('/<int:category_id>/')
 def show_category(category_id):
@@ -44,7 +48,7 @@ def show_category(category_id):
 def show_item(category_id, item_id):
     item = session.query(Item).filter_by(id=item_id).one()
     if item.category_id == category_id:
-        return render_template('item.html', item=item)
+        return render_template('item.html', i=item)
     else:
         return abort(404)
 
