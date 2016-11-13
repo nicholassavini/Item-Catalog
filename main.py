@@ -34,7 +34,7 @@ def logout():
 
 @app.route('/new/')
 def create_item():
-    return "This will create an item"
+    return render_template("new_item.html")
 
 
 @app.route('/<int:category_id>/')
