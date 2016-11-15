@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, abort
+from flask import Flask, render_template, request, redirect, abort, url_for
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from database_schema import Base, User, Category, Item
@@ -57,7 +57,18 @@ def edit_item(category_id, item_id):
     item = session.query(Item).filter_by(id=item_id).one()
     if item.category_id != category_id:
         return abort(404)
-    return render_template("edit.html", i=item)
+    if request.method == 'POST':
+        if request.form['name']:
+            item.name = request.form['name']
+        if request.form['price']:
+            item.price = request.form['price']
+        if request.form['description']:
+            item.description = request.form['description']
+        session.add(item)
+        session.commit()
+        return redirect('/')
+    else:
+        return render_template("edit.html", i=item)
 
 
 
