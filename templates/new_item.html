@@ -5,19 +5,22 @@
 <form method="post">
     <div class="form-group">
         <label for="name">Item Name</label>
-        <input type="text" class="form-control" id="name" value="{{ name }}">
+        <input type="text" class="form-control" id="name" name="name"
+        value="{{ name }}">
     </div>
     <div class="form-group">
         <label for="price">Price</label>
-        <input type="text" class="form-control" id="price" value="{{ price }}">
+        <input type="text" class="form-control" id="price" name="price"
+        value="{{ price }}">
     </div>
     <div class="form-group">
         <label for="description">Description</label>
-        <textarea class="form-control" id="descrition" rows=6>{{ description }}</textarea>
+        <textarea class="form-control" id="description" name="description"
+        rows=6>{{ description }}</textarea>
     </div>
     <div class="form-group">
         <label for="image">Image</label>
-        <input type="file" class="form-control" id="image"
+        <input type="file" class="form-control" id="image" name="image"
         accept="image/png,image/jpg,image/jpeg">
     </div>
 
