@@ -47,10 +47,9 @@ def show_category(category_id):
 @app.route('/<int:category_id>/<int:item_id>/')
 def show_item(category_id, item_id):
     item = session.query(Item).filter_by(id=item_id).one()
-    if item.category_id == category_id:
-        return render_template('item.html', i=item)
-    else:
+    if item.category_id != category_id:
         return abort(404)
+    return render_template('item.html', i=item)
 
 
 @app.route('/<int:category_id>/<int:item_id>/edit/', methods=['GET', 'POST'])
@@ -65,10 +64,10 @@ def edit_item(category_id, item_id):
 @app.route('/<int:category_id>/<int:item_id>/delete/')
 def delete_item(category_id, item_id):
     item = session.query(Item).filter_by(id=item_id).one()
-    if item.category_id == category_id:
-        return render_template("delete.html", i=item)
-    else:
+    if item.category_id != category_id:
         return abort(404)
+    return render_template("delete.html", i=item)
+
 
 # JSON routes
 @app.route('/catalog/json/')
