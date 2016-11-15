@@ -58,15 +58,36 @@ def edit_item(category_id, item_id):
     if item.category_id != category_id:
         return abort(404)
     if request.method == 'POST':
-        if request.form['name']:
+        name = request.form['name']
+        price = request.form['price']
+        description = request.form['description']
+
+        params = dict(i=item)
+        has_error = False
+
+        if not name:
+            has_error = True
+            params['name_class'] = "has-error"
+            params['name_error'] = "We need an item name!"
+        if not price:
+            has_error = True
+            params['price_class'] = "has-error"
+            params['price_error'] = "We need a price!"
+        if not description:
+            has_error = True
+            params['description_class'] = "has-error"
+            params['description_error'] = "We need a description!"
+
+        if has_error:
+            return render_template("edit.html", **params)
+        else:
             item.name = request.form['name']
-        if request.form['price']:
             item.price = request.form['price']
-        if request.form['description']:
             item.description = request.form['description']
-        session.add(item)
-        session.commit()
-        return redirect('/')
+            session.add(item)
+            session.commit()
+            return redirect(url_for('show_item', category_id=category_id,
+                            item_id=item_id))
     else:
         return render_template("edit.html", i=item)
 
