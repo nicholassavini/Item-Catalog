@@ -39,33 +39,29 @@ def create_item():
         name = request.form['name']
         price = request.form['price']
         description = request.form['description']
+        category_id = request.form['category']
 
-        params = dict(name=name, price=price, description=description)
-        has_error = False
+        params = dict(name=name, price=price, description=description,
+                      category_id=category_id)
 
+        has_error = ""
         if not name:
-            has_error = True
-            params['name_class'] = "has-error"
-            params['name_error'] = "We need an item name!"
+            has_error += "name"
         if not price:
-            has_error = True
-            params['price_class'] = "has-error"
-            params['price_error'] = "We need a price!"
+            has_error += "price"
         if not description:
-            has_error = True
-            params['description_class'] = "has-error"
-            params['description_error'] = "We need a description!"
+            has_error += "description"
 
         if has_error:
+            params['error'] = has_error
             return render_template("new_item.html", **params)
         else:
-            new_item = Item(name=name, price=price, description=description)
-            session.add(Item)
+            new_item = Item(**params)
+            session.add(new_item)
             session.commit()
-            return redirect(url_for('show_item', category_id=category_id,
-                            item_id=item_id))
+            return redirect(url_for('show_category', category_id=category_id))
     else:
-        return render_template("edit.html", i=item)
+        return render_template("new_item.html")
 
 
 @app.route('/<int:category_id>/')
@@ -117,7 +113,7 @@ def edit_item(category_id, item_id):
         return render_template("edit.html", i=item)
 
 
-@app.route('/<int:category_id>/<int:item_id>/delete/')
+@app.route('/<int:category_id>/<int:item_id>/delete/', methods=['GET', 'POST'])
 def delete_item(category_id, item_id):
     item = session.query(Item).filter_by(id=item_id).one()
     if item.category_id != category_id:
