@@ -34,7 +34,7 @@ def logout():
 
 @app.route('/new/', methods=['GET', 'POST'])
 def create_item():
-    ## still requires a lot of work need to add categories and user
+    #### Still requires user validation
     if request.method == 'POST':
         name = request.form['name']
         price = request.form['price']
@@ -81,6 +81,7 @@ def show_item(category_id, item_id):
 
 @app.route('/<int:category_id>/<int:item_id>/edit/', methods=['GET', 'POST'])
 def edit_item(category_id, item_id):
+    #### Still requires user validation
     item = session.query(Item).filter_by(id=item_id).one()
     if item.category_id != category_id:
         return abort(404)
@@ -115,25 +116,34 @@ def edit_item(category_id, item_id):
 
 @app.route('/<int:category_id>/<int:item_id>/delete/', methods=['GET', 'POST'])
 def delete_item(category_id, item_id):
+    #### Still requires user validation
     item = session.query(Item).filter_by(id=item_id).one()
     if item.category_id != category_id:
         return abort(404)
-    return render_template("delete.html", i=item)
+    if request.method == 'POST':
+        session.delete(item)
+        session.commit()
+        return redirect(url_for('show_category', category_id=category_id))
+    else:
+        return render_template("delete.html", i=item)
 
 
 # JSON routes
 @app.route('/catalog/json/')
 def catalog_json():
+    #### Still needs to be setup
     return "presents the entire catalog in json format"
 
 
 @app.route('/<int:category_id>/json/')
 def category_json():
+    #### Still needs to be setup
     return "presents an entire category in json format"
 
 
 @app.route('/<int:category_id>/<int:item_id>/json/')
 def item_json():
+    #### Still needs to be setup
     return "presents an item in json format"
 
 
