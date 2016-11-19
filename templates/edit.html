@@ -3,30 +3,64 @@
 {% block content %}
 <h2>Edit {{ i.name }}</h2>
 <form method="post">
-    <div class="form-group {{ name_class }}">
+    <div id="nameGroup" class="form-group">
         <label for="name">Item Name</label>
         <input type="text" class="form-control" name="name" id="name"
         value="{{ i.name }}" aria-described-by="nameError">
-        <div id="nameError" class="help-block">{{ name_error }}</div>
+        <div id="nameError" class="help-block"></div>
     </div>
-    <div class="form-group {{ price_class }}">
+    <div id="priceGroup" class="form-group">
         <label for="price">Price</label>
         <input type="text" class="form-control" id="price" name="price"
         value="{{ i.price }}" aria-described-by="priceError">
-        <div id="priceError" class="help-block">{{ price_error }}</div>
+        <div id="priceError" class="help-block"></div>
     </div>
-    <div class="form-group {{ description_class }}">
+    <div id="descriptionGroup" class="form-group">
         <label for="description">Description</label>
         <textarea class="form-control" id="description" name="description"
         rows=6 aria-described-by="descrError">{{ i.description }}</textarea>
-        <div id="descrError" class="help-block">{{ description_error }}</div>
+        <div id="descrError" class="help-block"></div>
+    </div>
+    <div class="form-group">
+        <label for="category">Category</label>
+        <select id="category" name="category" class="form-control">
+            <option value="1" id="keyboards">Keyboards</option>
+            <option value="2" id="keysets">Keysets</option>
+            <option value="3" id="switches">Switches</option>
+            <option value="4" id="accessories">Accessories</option>
+        </select>
     </div>
     <div class="form-group">
         <label for="image">Image</label>
         <input type="file" class="form-control" id="image" name="image"
         accept="image/png,image/jpg,image/jpeg">
     </div>
-    {{ error }}
     <button type="submit" class="btn btn-default">Submit</button>
 </form>
+<script>
+// Sets the existing category in the category dropdown
+var category = '{{ i .category_id }}';
+$("#category").val(category).change();
+
+// Error handling for form submission
+var errorTypes = "{{ error }}";
+var nameError = "We need a name!"
+var priceError = "We need a price!"
+var descriptionError = "We need a description!"
+
+if (errorTypes.indexOf("name") != -1) {
+    $("#nameGroup").addClass("has-error");
+    $("#nameError").append(nameError);
+}
+
+if (errorTypes.indexOf("price") != -1) {
+    $("#priceGroup").addClass("has-error");
+    $("#priceError").append(priceError);
+}
+
+if (errorTypes.indexOf("name") != -1) {
+    $("#descriptionGroup").addClass("has-error");
+    $("#descrError").append(descriptionError);
+}
+</script>
 {% endblock %}

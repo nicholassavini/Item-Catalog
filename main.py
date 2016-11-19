@@ -32,9 +32,40 @@ def logout():
     return "This will log the user out"
 
 
-@app.route('/new/')
+@app.route('/new/', methods=['GET', 'POST'])
 def create_item():
-    return render_template("new_item.html")
+    ## still requires a lot of work need to add categories and user
+    if request.method == 'POST':
+        name = request.form['name']
+        price = request.form['price']
+        description = request.form['description']
+
+        params = dict(name=name, price=price, description=description)
+        has_error = False
+
+        if not name:
+            has_error = True
+            params['name_class'] = "has-error"
+            params['name_error'] = "We need an item name!"
+        if not price:
+            has_error = True
+            params['price_class'] = "has-error"
+            params['price_error'] = "We need a price!"
+        if not description:
+            has_error = True
+            params['description_class'] = "has-error"
+            params['description_error'] = "We need a description!"
+
+        if has_error:
+            return render_template("new_item.html", **params)
+        else:
+            new_item = Item(name=name, price=price, description=description)
+            session.add(Item)
+            session.commit()
+            return redirect(url_for('show_item', category_id=category_id,
+                            item_id=item_id))
+    else:
+        return render_template("edit.html", i=item)
 
 
 @app.route('/<int:category_id>/')
@@ -61,36 +92,29 @@ def edit_item(category_id, item_id):
         name = request.form['name']
         price = request.form['price']
         description = request.form['description']
+        category_id = request.form['category']
 
-        params = dict(i=item)
-        has_error = False
-
+        has_error = ""
         if not name:
-            has_error = True
-            params['name_class'] = "has-error"
-            params['name_error'] = "We need an item name!"
+            has_error += "name"
         if not price:
-            has_error = True
-            params['price_class'] = "has-error"
-            params['price_error'] = "We need a price!"
+            has_error += "price"
         if not description:
-            has_error = True
-            params['description_class'] = "has-error"
-            params['description_error'] = "We need a description!"
+            has_error += "description"
 
         if has_error:
-            return render_template("edit.html", **params)
+            return render_template("edit.html", i=item, error=has_error)
         else:
-            item.name = request.form['name']
-            item.price = request.form['price']
-            item.description = request.form['description']
+            item.name = name
+            item.price = price
+            item.description = description
+            item.category_id = category_id
             session.add(item)
             session.commit()
             return redirect(url_for('show_item', category_id=category_id,
                             item_id=item_id))
     else:
         return render_template("edit.html", i=item)
-
 
 
 @app.route('/<int:category_id>/<int:item_id>/delete/')
