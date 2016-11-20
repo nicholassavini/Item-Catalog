@@ -198,10 +198,6 @@ def gdisconnect():
         return response
 
 
-@app.route('/logout/')
-def logout():
-    return "This will log the user out"
-
 @app.route('/')
 def show_catalog():
     items = session.query(Item).order_by(Item.created_date.desc()).limit(6)
