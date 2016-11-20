@@ -32,6 +32,29 @@ def category_by_id(id):
     return session.query(Category).filter_by(id=id).one()
 
 
+def create_user(login_session):
+    new_user = User(name=login_session['username'], email=login_session[
+                   'email'])
+    session.add(new_user)
+    session.commit()
+    user = session.query(User).filter_by(email=login_session['email']).one()
+    return user.id
+
+
+def get_user_info(user_id):
+    user = session.query(User).filter_by(id=user_id).one()
+    return user
+
+
+def get_user_id(email):
+    try:
+        user = session.query(User).filter_by(email=email).one()
+        return user.id
+    except:
+        return None
+
+
+
 @app.route('/')
 def show_catalog():
     items = session.query(Item).order_by(Item.created_date.desc()).limit(6)
@@ -118,6 +141,11 @@ def gconnect():
     login_session['picture'] = data['picture']
     login_session['email'] = data['email']
 
+    user_id = get_user_id(data["email"])
+    if not user_id:
+        user_id = create_user(login_session)
+    login_session['user_id'] = user_id
+
     output = ''
     output += '<h1>Welcome, '
     output += login_session['username']
@@ -154,6 +182,8 @@ def gdisconnect():
         del login_session['username']
         del login_session['email']
         del login_session['picture']
+        del login_session['user_id']
+        del login_session['_flashes']
         response = make_response(json.dumps('Successfully disconnected.'), 200)
         response.headers['Content-Type'] = 'application/json'
         return response
