@@ -28,6 +28,7 @@ Base.metadata.bind = engine
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
 
+
 def category_by_id(id):
     return session.query(Category).filter_by(id=id).one()
 
@@ -52,7 +53,6 @@ def get_user_id(email):
         return user.id
     except:
         return None
-
 
 
 @app.route('/')
@@ -121,7 +121,7 @@ def gconnect():
     stored_access_token = login_session.get('access_token')
     stored_gplus_id = login_session.get('gplus_id')
     if stored_access_token is not None and gplus_id == stored_gplus_id:
-        response = make_response(json.dumps('Current user is already connected.'),
+        response = make_response(json.dumps('User is already connected.'),
                                  200)
         response.headers['Content-Type'] = 'application/json'
         return response
@@ -171,7 +171,7 @@ def gdisconnect():
         response = make_response(json.dumps('Current user not connected.'), 401)
         response.headers['Content-Type'] = 'application/json'
         return response
-    url = 'https://accounts.google.com/o/oauth2/revoke?token=%s' % login_session['access_token']
+    url = 'https://accounts.google.com/o/oauth2/revoke?token=%s' % access_token
     h = httplib2.Http()
     result = h.request(url, 'GET')[0]
     print 'result is '
@@ -188,7 +188,8 @@ def gdisconnect():
         response.headers['Content-Type'] = 'application/json'
         return response
     else:
-        response = make_response(json.dumps('Failed to revoke token for given user.', 400))
+        response = make_response(json.dumps('Failed to revoke token for user.',
+                                            400))
         response.headers['Content-Type'] = 'application/json'
         return response
 
@@ -210,7 +211,8 @@ def create_item():
         category_id = request.form['category']
 
         params = dict(name=name, price=price, description=description,
-                      category_id=category_id)
+                      category_id=category_id,
+                      created_by=login_session['user_id'])
 
         has_error = ""
         if not name:
@@ -254,6 +256,8 @@ def edit_item(category_id, item_id):
     item = session.query(Item).filter_by(id=item_id).one()
     if item.category_id != category_id:
         return abort(404)
+    if login_session['user_id'] != item.created_by:
+        return render_template('error.html')
     if request.method == 'POST':
         name = request.form['name']
         price = request.form['price']
@@ -285,12 +289,13 @@ def edit_item(category_id, item_id):
 
 @app.route('/<int:category_id>/<int:item_id>/delete/', methods=['GET', 'POST'])
 def delete_item(category_id, item_id):
-    #### Still requires user validation
     if 'username' not in login_session:
         return redirect('/login')
     item = session.query(Item).filter_by(id=item_id).one()
     if item.category_id != category_id:
         return abort(404)
+    if login_session['user_id'] != item.created_by:
+        return render_template('error.html')
     if request.method == 'POST':
         session.delete(item)
         session.commit()
