@@ -31,16 +31,6 @@ session = DBSession()
 def category_by_id(id):
     return session.query(Category).filter_by(id=id).one()
 
-def user_required(func):
-    """ makes sure that the user is logged in """
-    def check_user(self, *args, **kwargs):
-        """ makes sure that the user is logged in """
-        if 'username' in login_session:
-            return func(self, *args, **kwargs)
-        else:
-            self.redirect("/login")
-    return check_user
-
 
 @app.route('/')
 def show_catalog():
@@ -181,6 +171,8 @@ def logout():
 @app.route('/new/', methods=['GET', 'POST'])
 def create_item():
     #### Still requires user validation
+    if 'username' not in login_session:
+        return redirect('/login')
     if request.method == 'POST':
         name = request.form['name']
         price = request.form['price']
@@ -224,9 +216,11 @@ def show_item(category_id, item_id):
         return abort(404)
     return render_template('item.html', i=item)
 
-@user_required
+
 @app.route('/<int:category_id>/<int:item_id>/edit/', methods=['GET', 'POST'])
 def edit_item(category_id, item_id):
+    if 'username' not in login_session:
+        return redirect('/login')
     item = session.query(Item).filter_by(id=item_id).one()
     if item.category_id != category_id:
         return abort(404)
@@ -262,6 +256,8 @@ def edit_item(category_id, item_id):
 @app.route('/<int:category_id>/<int:item_id>/delete/', methods=['GET', 'POST'])
 def delete_item(category_id, item_id):
     #### Still requires user validation
+    if 'username' not in login_session:
+        return redirect('/login')
     item = session.query(Item).filter_by(id=item_id).one()
     if item.category_id != category_id:
         return abort(404)
