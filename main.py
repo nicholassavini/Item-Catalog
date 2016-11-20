@@ -1,17 +1,17 @@
 from flask import Flask, render_template, request, redirect, abort, url_for
+from flask import make_response, flash, jsonify
+from flask import session as login_session
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from database_schema import Base, User, Category, Item
 
-from flask import session as login_session
 import random, string
 
 from oauth2client.client import flow_from_clientsecrets
 from oauth2client.client import FlowExchangeError
 import httplib2
 import json
-from flask import make_response, flash
 import requests
 
 app = Flask(__name__)
@@ -27,10 +27,6 @@ Base.metadata.bind = engine
 
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
-
-
-def category_by_id(id):
-    return session.query(Category).filter_by(id=id).one()
 
 
 def create_user(login_session):
@@ -55,11 +51,19 @@ def get_user_id(email):
         return None
 
 
-@app.route('/')
-def show_catalog():
-    items = session.query(Item).order_by(Item.created_date.desc()).limit(6)
-    return render_template('catalog.html', items=items)
+def category_by_id(id):
+    return session.query(Category).filter_by(id=id).one()
 
+
+def item_by_cat(category_id):
+    return session.query(Item).filter_by(category_id=category_id).all()
+
+def item_by_id(category_id, item_id):
+    item = session.query(Item).filter_by(id=item_id).one()
+    if item.category_id != category_id:
+        return abort(404)
+    else:
+        return item
 
 @app.route('/login/')
 def login():
@@ -198,6 +202,10 @@ def gdisconnect():
 def logout():
     return "This will log the user out"
 
+@app.route('/')
+def show_catalog():
+    items = session.query(Item).order_by(Item.created_date.desc()).limit(6)
+    return render_template('catalog.html', items=items)
 
 @app.route('/new/', methods=['GET', 'POST'])
 def create_item():
@@ -236,16 +244,14 @@ def create_item():
 
 @app.route('/<int:category_id>/')
 def show_category(category_id):
-    items = session.query(Item).filter_by(category_id=category_id).all()
+    items = item_by_cat(category_id)
     return render_template('category.html', items=items,
                            category=category_by_id(category_id))
 
 
 @app.route('/<int:category_id>/<int:item_id>/')
 def show_item(category_id, item_id):
-    item = session.query(Item).filter_by(id=item_id).one()
-    if item.category_id != category_id:
-        return abort(404)
+    item = item_by_id(category_id, item_id)
     return render_template('item.html', i=item)
 
 
@@ -253,9 +259,7 @@ def show_item(category_id, item_id):
 def edit_item(category_id, item_id):
     if 'username' not in login_session:
         return redirect('/login')
-    item = session.query(Item).filter_by(id=item_id).one()
-    if item.category_id != category_id:
-        return abort(404)
+    item = item_by_id(category_id, item_id)
     if login_session['user_id'] != item.created_by:
         return render_template('error.html')
     if request.method == 'POST':
@@ -291,9 +295,7 @@ def edit_item(category_id, item_id):
 def delete_item(category_id, item_id):
     if 'username' not in login_session:
         return redirect('/login')
-    item = session.query(Item).filter_by(id=item_id).one()
-    if item.category_id != category_id:
-        return abort(404)
+    item = item_by_id(category_id, item_id)
     if login_session['user_id'] != item.created_by:
         return render_template('error.html')
     if request.method == 'POST':
@@ -307,20 +309,21 @@ def delete_item(category_id, item_id):
 # JSON routes
 @app.route('/catalog/json/')
 def catalog_json():
-    #### Still needs to be setup
-    return "presents the entire catalog in json format"
+    return jsonify(Keyboards=[k.serialize for k in item_by_cat(1)],
+                   Keysets=[k.serialize for k in item_by_cat(2)],
+                   Switches=[s.serialize for s in item_by_cat(3)],
+                   Accessories=[a.serialize for a in item_by_cat(4)])
 
 
 @app.route('/<int:category_id>/json/')
-def category_json():
-    #### Still needs to be setup
-    return "presents an entire category in json format"
+def category_json(category_id):
+    return jsonify(Items=[i.serialize for i in item_by_cat(category_id)])
 
 
 @app.route('/<int:category_id>/<int:item_id>/json/')
-def item_json():
-    #### Still needs to be setup
-    return "presents an item in json format"
+def item_json(category_id, item_id):
+    item = item_by_id(category_id, item_id)
+    return jsonify(Item=item.serialize)
 
 
 if __name__ == '__main__':
