@@ -19,6 +19,13 @@ class User(Base):
     email = Column(String(250), nullable=False)
     image = Column(String(250))
 
+    @property
+    def serialize(self):
+        """Return object data in easily serializeable format"""
+        return {
+            'name'         : self.name,
+        }
+
 
 class Category(Base):
     """ Creates 'categories' table, containing all possible item categories """
@@ -26,6 +33,13 @@ class Category(Base):
 
     id = Column(Integer, primary_key = True)
     category = Column(String(80))
+
+    @property
+    def serialize(self):
+        """Return object data in easily serializeable format"""
+        return {
+            'category'         : self.category,
+        }
 
 
 class Item(Base):
@@ -47,6 +61,19 @@ class Item(Base):
     created_date = Column(DateTime, default=datetime.datetime.now)
     last_updated = Column(DateTime, default=datetime.datetime.now,
                           onupdate=datetime.datetime.now)
+
+    @property
+    def serialize(self):
+        """Return object data in easily serializeable format"""
+        return {
+            'name'         : self.name,
+            'price'        : self.price,
+            'description'  : self.description,
+            'image'        : self.image,
+            'created_by'   : self.created_by,
+            'created_date' : self.created_date,
+            'last_updated' : self.last_updated
+        }
 
 
 engine = create_engine('sqlite:///catalog.db')
