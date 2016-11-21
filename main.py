@@ -73,9 +73,13 @@ def item_by_id(category_id, item_id):
         return item
 
 
+def file_extension(filename):
+    return filename.rsplit('.', 1)[1]
+
+
 def allowed_file(filename):
     return '.' in filename and \
-           filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
+           file_extension(filename) in ALLOWED_EXTENSIONS
 
 
 @app.route('/login/')
@@ -227,7 +231,7 @@ def create_item():
         description = request.form['description']
         category_id = request.form['category']
         image = request.files['image']
-        image_name = secure_filename(image.filename)
+        image_name = "%s.%s" % (name, file_extension(image.filename))
 
         params = dict(name=name, price=price, description=description,
                       category_id=category_id,
@@ -286,7 +290,7 @@ def edit_item(category_id, item_id):
         description = request.form['description']
         category_id = request.form['category']
         image = request.files['image']
-        image_name = secure_filename(image.filename)
+        image_name = "%s.%s" % (name, file_extension(image.filename))
 
         has_error = ""
         if not name:
