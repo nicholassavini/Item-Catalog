@@ -64,6 +64,7 @@ def category_by_id(id):
 def item_by_cat(category_id):
     return session.query(Item).filter_by(category_id=category_id).all()
 
+
 def item_by_id(category_id, item_id):
     item = session.query(Item).filter_by(id=item_id).one()
     if item.category_id != category_id:
@@ -226,12 +227,12 @@ def create_item():
         description = request.form['description']
         category_id = request.form['category']
         image = request.files['image']
-        image_name = image.filename
+        image_name = secure_filename(image.filename)
+
         params = dict(name=name, price=price, description=description,
                       category_id=category_id,
                       image="/static/images/%s" % image_name,
                       created_by=login_session['user_id'])
-        image.save(os.path.join(app.config['UPLOAD_FOLDER'], image_name))
 
         has_error = ""
         if not name:
@@ -240,7 +241,7 @@ def create_item():
             has_error += "price"
         if not description:
             has_error += "description"
-        if not image:
+        if not image or not allowed_file(image_name):
             has_error += "image"
 
         if has_error:
@@ -250,6 +251,7 @@ def create_item():
             new_item = Item(**params)
             session.add(new_item)
             session.commit()
+            image.save(os.path.join(app.config['UPLOAD_FOLDER'], image_name))
             return redirect(url_for('show_category', category_id=category_id))
     else:
         return render_template("new_item.html")
