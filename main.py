@@ -274,14 +274,19 @@ def show_item(category_id, item_id):
 def edit_item(category_id, item_id):
     if 'username' not in login_session:
         return redirect('/login')
+
     item = item_by_id(category_id, item_id)
+
     if login_session['user_id'] != item.created_by:
         return render_template('error.html')
+
     if request.method == 'POST':
         name = request.form['name']
         price = request.form['price']
         description = request.form['description']
         category_id = request.form['category']
+        image = request.files['image']
+        image_name = secure_filename(image.filename)
 
         has_error = ""
         if not name:
@@ -290,6 +295,8 @@ def edit_item(category_id, item_id):
             has_error += "price"
         if not description:
             has_error += "description"
+        if image and not allowed_file(image_name):
+            has_error += "image"
 
         if has_error:
             return render_template("edit.html", i=item, error=has_error)
@@ -298,8 +305,16 @@ def edit_item(category_id, item_id):
             item.price = price
             item.description = description
             item.category_id = category_id
+            if image and allowed_file(image_name):
+                item.image = "/static/images/%s" % image_name
+
             session.add(item)
             session.commit()
+
+            if image and allowed_file(image_name):
+                image.save(os.path.join(app.config['UPLOAD_FOLDER'],
+                                        image_name))
+
             return redirect(url_for('show_item', category_id=category_id,
                             item_id=item_id))
     else:
