@@ -14,12 +14,18 @@ import httplib2
 import json
 import requests
 
+import os
+from werkzeug.utils import secure_filename
+
 app = Flask(__name__)
 
 CLIENT_ID = json.loads(
     open('client_secrets.json', 'r').read())['web']['client_id']
 APPLICATION_NAME = "Item Catalog"
 
+UPLOAD_FOLDER = '/vagrant/catalog/static/images'
+ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg'])
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 # Connect to Database and create database session
 engine = create_engine('sqlite:///catalog.db')
@@ -64,6 +70,12 @@ def item_by_id(category_id, item_id):
         return abort(404)
     else:
         return item
+
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
+
 
 @app.route('/login/')
 def login():
@@ -213,10 +225,13 @@ def create_item():
         price = request.form['price']
         description = request.form['description']
         category_id = request.form['category']
-
+        image = request.files['image']
+        image_name = image.filename
         params = dict(name=name, price=price, description=description,
                       category_id=category_id,
+                      image="/static/images/%s" % image_name,
                       created_by=login_session['user_id'])
+        image.save(os.path.join(app.config['UPLOAD_FOLDER'], image_name))
 
         has_error = ""
         if not name:
@@ -225,6 +240,8 @@ def create_item():
             has_error += "price"
         if not description:
             has_error += "description"
+        if not image:
+            has_error += "image"
 
         if has_error:
             params['error'] = has_error
