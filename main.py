@@ -283,17 +283,19 @@ def edit_item(category_id, item_id):
 
     if login_session['user_id'] != item.created_by:
         return render_template('error.html')
-
+#### This currently causes a problem where an edit can't be submitted without and image
     if request.method == 'POST':
-        name = request.form['name']
+        old_name = item.name
+        new_name = request.form['name']
         price = request.form['price']
         description = request.form['description']
         category_id = request.form['category']
         image = request.files['image']
-        image_name = "%s.%s" % (name, file_extension(image.filename))
+        image_name = "%s.%s" % (new_name, file_extension(image.filename))
+        filepath = "/vagrant/catalog/static/images/%s" % image_name
 
         has_error = ""
-        if not name:
+        if not new_name:
             has_error += "name"
         if not price:
             has_error += "price"
@@ -305,7 +307,7 @@ def edit_item(category_id, item_id):
         if has_error:
             return render_template("edit.html", i=item, error=has_error)
         else:
-            item.name = name
+            item.name = new_name
             item.price = price
             item.description = description
             item.category_id = category_id
@@ -314,10 +316,17 @@ def edit_item(category_id, item_id):
 
             session.add(item)
             session.commit()
-
+            print old_name
+            # Check to see if name changed and rename photo file
+            if new_name != old_name:
+                os.rename(filepath,
+                          "/vagrant/catalog/static/images/%s" % new_name)
+            # Check to see if the image exists and delete it before uploading
+            # new photo
+            if os.path.exists(filepath):
+                os.remove(filepath)
             if image and allowed_file(image_name):
-                image.save(os.path.join(app.config['UPLOAD_FOLDER'],
-                                        image_name))
+                image.save(filepath)
 
             return redirect(url_for('show_item', category_id=category_id,
                             item_id=item_id))
