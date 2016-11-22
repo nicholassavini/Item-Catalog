@@ -285,17 +285,19 @@ def edit_item(category_id, item_id):
         return render_template('error.html')
 #### This currently causes a problem where an edit can't be submitted without and image
     if request.method == 'POST':
-        old_name = item.name
-        new_name = request.form['name']
+        name = request.form['name']
         price = request.form['price']
         description = request.form['description']
         category_id = request.form['category']
         image = request.files['image']
-        image_name = "%s.%s" % (new_name, file_extension(image.filename))
+        if image:
+            image_name = "%s.%s" % (name, file_extension(image.filename))
+        else:
+            image_name = item.image.rsplit('/', 1)[-1]
         filepath = "/vagrant/catalog/static/images/%s" % image_name
 
         has_error = ""
-        if not new_name:
+        if not name:
             has_error += "name"
         if not price:
             has_error += "price"
@@ -307,7 +309,7 @@ def edit_item(category_id, item_id):
         if has_error:
             return render_template("edit.html", i=item, error=has_error)
         else:
-            item.name = new_name
+            item.name = name
             item.price = price
             item.description = description
             item.category_id = category_id
@@ -316,11 +318,6 @@ def edit_item(category_id, item_id):
 
             session.add(item)
             session.commit()
-            print old_name
-            # Check to see if name changed and rename photo file
-            if new_name != old_name:
-                os.rename(filepath,
-                          "/vagrant/catalog/static/images/%s" % new_name)
             # Check to see if the image exists and delete it before uploading
             # new photo
             if os.path.exists(filepath):
