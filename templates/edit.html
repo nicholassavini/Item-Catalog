@@ -30,13 +30,6 @@
             <option value="4" id="accessories">Accessories</option>
         </select>
     </div>
-    <div id="imageGroup" class="form-group">
-        <label for="image">Image</label>
-        <input type="file" class="form-control" id="image" name="image"
-        accept="image/png,image/jpg,image/jpeg" aria-described-by="imageError">
-        <div id="imageError" class="help-block">Supported Files Extensions: png,
-         jpg, jpeg</div>
-    </div>
     <button type="submit" class="btn btn-default">Submit</button>
 </form>
 <script>
@@ -49,7 +42,6 @@ var errorTypes = "{{ error }}";
 var nameError = "We need a name!"
 var priceError = "We need a price!"
 var descriptionError = "We need a description!"
-var imageError = "Not a supported image type!<br>"
 
 if (errorTypes.indexOf("name") != -1) {
     $("#nameGroup").addClass("has-error");
@@ -64,10 +56,6 @@ if (errorTypes.indexOf("price") != -1) {
 if (errorTypes.indexOf("description") != -1) {
     $("#descriptionGroup").addClass("has-error");
     $("#descrError").append(descriptionError);
-}
-if (errorTypes.indexOf("image") != -1) {
-    $("#imageGroup").addClass("has-error");
-    $("#imageError").prepend(imageError);
 }
 </script>
 {% endblock %}

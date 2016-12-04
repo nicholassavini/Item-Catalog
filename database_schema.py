@@ -55,7 +55,6 @@ class Item(Base):
     categories = relationship(Category)
     price = Column(Float)
     description = Column(Text)
-    image = Column(String(250))
     created_by = Column(Integer, ForeignKey('users.id'))
     users = relationship(User)
     created_date = Column(DateTime, default=datetime.datetime.now)
@@ -70,7 +69,6 @@ class Item(Base):
             'name'         : self.name,
             'price'        : self.price,
             'description'  : self.description,
-            'image'        : self.image,
             'created_by'   : self.created_by
         }
 

@@ -73,15 +73,6 @@ def item_by_id(category_id, item_id):
         return item
 
 
-def file_extension(filename):
-    return filename.rsplit('.', 1)[1]
-
-
-def allowed_file(filename):
-    return '.' in filename and \
-           file_extension(filename) in ALLOWED_EXTENSIONS
-
-
 @app.route('/login/')
 def login():
     state = ''.join(random.choice(string.ascii_uppercase + string.digits)
@@ -230,12 +221,9 @@ def create_item():
         price = request.form['price']
         description = request.form['description']
         category_id = request.form['category']
-        image = request.files['image']
-        image_name = "%s.%s" % (name, file_extension(image.filename))
 
         params = dict(name=name, price=price, description=description,
                       category_id=category_id,
-                      image="/static/images/%s" % image_name,
                       created_by=login_session['user_id'])
 
         has_error = ""
@@ -245,8 +233,6 @@ def create_item():
             has_error += "price"
         if not description:
             has_error += "description"
-        if not image or not allowed_file(image_name):
-            has_error += "image"
 
         if has_error:
             params['error'] = has_error
@@ -255,7 +241,6 @@ def create_item():
             new_item = Item(**params)
             session.add(new_item)
             session.commit()
-            image.save(os.path.join(app.config['UPLOAD_FOLDER'], image_name))
             return redirect(url_for('show_category', category_id=category_id))
     else:
         return render_template("new_item.html")
@@ -289,12 +274,6 @@ def edit_item(category_id, item_id):
         price = request.form['price']
         description = request.form['description']
         category_id = request.form['category']
-        image = request.files['image']
-        if image:
-            image_name = "%s.%s" % (name, file_extension(image.filename))
-        else:
-            image_name = item.image.rsplit('/', 1)[-1]
-        filepath = "/vagrant/catalog/static/images/%s" % image_name
 
         has_error = ""
         if not name:
@@ -303,8 +282,6 @@ def edit_item(category_id, item_id):
             has_error += "price"
         if not description:
             has_error += "description"
-        if image and not allowed_file(image_name):
-            has_error += "image"
 
         if has_error:
             return render_template("edit.html", i=item, error=has_error)
@@ -313,17 +290,9 @@ def edit_item(category_id, item_id):
             item.price = price
             item.description = description
             item.category_id = category_id
-            if image and allowed_file(image_name):
-                item.image = "/static/images/%s" % image_name
 
             session.add(item)
             session.commit()
-            # Check to see if the image exists and delete it before uploading
-            # new photo
-            if os.path.exists(filepath):
-                os.remove(filepath)
-            if image and allowed_file(image_name):
-                image.save(filepath)
 
             return redirect(url_for('show_item', category_id=category_id,
                             item_id=item_id))

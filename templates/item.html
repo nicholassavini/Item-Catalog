@@ -2,7 +2,6 @@
 {% block title %}{{ i.name }}{% endblock %}
 {% block content %}
 <h2>{{ i.name }}</h2>
-<img src="{{i.image}}">
 <p>${{ i.price }}</p>
 <p>{{ i.description|safe }}</p>
 <a href="{{ url_for('edit_item', category_id=i.category_id, item_id=i.id) }}">
