@@ -22,9 +22,11 @@
                 <p class="username text-right">
                     {% if "username" in session %}
                         {{ session.username }}
-                        (<a class="login-link" href="/gdisconnect">logout</a>)
+                        (<a class="login-link"
+                         href="{{url_for('gdisconnect')}}">logout</a>)
                     {% else %}
-                        <a class="login-link" href="/login">login</a>
+                        <a class="login-link" href="{{url_for('login')}}">
+                        login</a>
                     {% endif %}
                 </p>
             </div>
@@ -46,6 +48,9 @@
             <li role="presentation">
                 <a href="{{url_for('show_category', category_id=4)}}">
                 Accessories</a>
+            </li>
+            <li role="presentation">
+                <a href="{{url_for('create_item')}}">New Item</a>
             </li>
         </ul>
         {% block content %}
