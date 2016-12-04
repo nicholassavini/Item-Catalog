@@ -68,6 +68,7 @@ def item_by_id(category_id, item_id):
     else:
         return item
 
+
 def get_names():
     names = session.query(Item.name).all()
     return [n[0].encode("utf-8") for n in names]
@@ -268,12 +269,14 @@ def edit_item(category_id, item_id):
     if 'username' not in login_session:
         return redirect('/login')
 
+    item_names = get_names()
     item = item_by_id(category_id, item_id)
 
     if login_session['user_id'] != item.created_by:
         return render_template('error.html')
 
     if request.method == 'POST':
+        old_name = item.name
         name = request.form['name']
         price = request.form['price']
         description = request.form['description']
@@ -282,6 +285,8 @@ def edit_item(category_id, item_id):
         has_error = ""
         if not name:
             has_error += "name"
+        if name in item_names and name != old_name:
+            has_error += "exists"
         if not price:
             has_error += "price"
         if not description:
