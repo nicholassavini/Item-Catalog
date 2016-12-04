@@ -40,12 +40,18 @@ $("#category").val(category).change();
 // Error handling for form submission
 var errorTypes = "{{ error }}";
 var nameError = "We need a name!"
+var existsError = "Name already exists!"
 var priceError = "We need a price!"
 var descriptionError = "We need a description!"
 
 if (errorTypes.indexOf("name") != -1) {
     $("#nameGroup").addClass("has-error");
     $("#nameError").append(nameError);
+}
+
+if (errorTypes.indexOf("exists") != -1) {
+    $("#nameGroup").addClass("has-error");
+    $("#nameError").append(existsError);
 }
 
 if (errorTypes.indexOf("price") != -1) {

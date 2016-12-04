@@ -23,10 +23,6 @@ CLIENT_ID = json.loads(
     open('client_secrets.json', 'r').read())['web']['client_id']
 APPLICATION_NAME = "Item Catalog"
 
-UPLOAD_FOLDER = '/vagrant/catalog/static/images'
-ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg'])
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-
 # Connect to Database and create database session
 engine = create_engine('sqlite:///catalog.db')
 Base.metadata.bind = engine
@@ -71,6 +67,10 @@ def item_by_id(category_id, item_id):
         return abort(404)
     else:
         return item
+
+def get_names():
+    names = session.query(Item.name).all()
+    return [n[0].encode("utf-8") for n in names]
 
 
 @app.route('/login/')
@@ -213,10 +213,12 @@ def show_catalog():
 
 @app.route('/new/', methods=['GET', 'POST'])
 def create_item():
-    #### Still requires user validation
     if 'username' not in login_session:
         return redirect('/login')
+
     if request.method == 'POST':
+        item_names = get_names()
+
         name = request.form['name']
         price = request.form['price']
         description = request.form['description']
@@ -229,6 +231,8 @@ def create_item():
         has_error = ""
         if not name:
             has_error += "name"
+        if name in item_names:
+            has_error +="exists"
         if not price:
             has_error += "price"
         if not description:
@@ -268,7 +272,7 @@ def edit_item(category_id, item_id):
 
     if login_session['user_id'] != item.created_by:
         return render_template('error.html')
-#### This currently causes a problem where an edit can't be submitted without and image
+
     if request.method == 'POST':
         name = request.form['name']
         price = request.form['price']
