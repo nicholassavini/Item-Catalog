@@ -166,7 +166,6 @@ def gconnect():
     output += '<img src="'
     output += login_session['picture']
     output += ' " style = "width: 300px; height: 300px;border-radius: 150px;-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
-    flash("you are now logged in as %s" % login_session['username'])
     print "done!"
     return output
 
@@ -199,7 +198,8 @@ def gdisconnect():
         del login_session['_flashes']
         response = make_response(json.dumps('Successfully disconnected.'), 200)
         response.headers['Content-Type'] = 'application/json'
-        return response
+        flash(response)
+        return redirect("/")
     else:
         response = make_response(json.dumps('Failed to revoke token for user.',
                                             400))
@@ -229,18 +229,21 @@ def create_item():
                       category_id=category_id,
                       created_by=login_session['user_id'])
 
-        has_error = ""
+        has_error = False
         if not name:
-            has_error += "name"
+            has_error = True
+            flash("We need a name!")
         if name in item_names:
-            has_error +="exists"
+            has_error = True
+            flash("Name already exists!")
         if not price:
-            has_error += "price"
+            has_error = True
+            flash("We need a price!")
         if not description:
-            has_error += "description"
+            has_error = True
+            flash("We need a description!")
 
         if has_error:
-            params['error'] = has_error
             return render_template("new_item.html", **params)
         else:
             new_item = Item(**params)

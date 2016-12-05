@@ -6,20 +6,17 @@
     <div id="nameGroup" class="form-group">
         <label for="name">Item Name</label>
         <input type="text" class="form-control" name="name" id="name"
-        value="{{ name }}" aria-described-by="nameError">
-        <div id="nameError" class="help-block"></div>
+        value="{{ name }}">
     </div>
     <div id="priceGroup" class="form-group">
         <label for="price">Price</label>
         <input type="text" class="form-control" id="price" name="price"
-        value="{{ price }}" aria-described-by="priceError">
-        <div id="priceError" class="help-block"></div>
+        value="{{ price }}">
     </div>
     <div id="descriptionGroup" class="form-group">
         <label for="description">Description</label>
         <textarea class="form-control" id="description" name="description"
-        rows=6 aria-described-by="descrError">{{ description }}</textarea>
-        <div id="descrError" class="help-block"></div>
+        rows=6>{{ description }}</textarea>
     </div>
     <div class="form-group">
         <label for="category">Category</label>
@@ -36,32 +33,5 @@
 // Sets the existing category in the category dropdown
 var category = '{{ category_id }}';
 $("#category").val(category).change();
-
-// Error handling for form submission
-var errorTypes = "{{ error }}";
-var nameError = "We need a name!"
-var existsError = "Name already exists!"
-var priceError = "We need a price!"
-var descriptionError = "We need a description!"
-
-if (errorTypes.indexOf("name") != -1) {
-    $("#nameGroup").addClass("has-error");
-    $("#nameError").append(nameError);
-}
-
-if (errorTypes.indexOf("exists") != -1) {
-    $("#nameGroup").addClass("has-error");
-    $("#nameError").append(existsError);
-}
-
-if (errorTypes.indexOf("price") != -1) {
-    $("#priceGroup").addClass("has-error");
-    $("#priceError").append(priceError);
-}
-
-if (errorTypes.indexOf("description") != -1) {
-    $("#descriptionGroup").addClass("has-error");
-    $("#descrError").append(descriptionError);
-}
 </script>
 {% endblock %}

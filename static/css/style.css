@@ -1,3 +1,6 @@
 .username {
     margin-top: 28px;
 }
+.errors {
+    list-style: none;
+}
