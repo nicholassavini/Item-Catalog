@@ -198,7 +198,6 @@ def gdisconnect():
         del login_session['_flashes']
         response = make_response(json.dumps('Successfully disconnected.'), 200)
         response.headers['Content-Type'] = 'application/json'
-        flash(response)
         return redirect("/")
     else:
         response = make_response(json.dumps('Failed to revoke token for user.',
@@ -238,7 +237,7 @@ def create_item():
             flash("Name already exists!")
         if not price:
             has_error = True
-            flash("We need a price!")
+            flash("We need a valid price!")
         if not description:
             has_error = True
             flash("We need a description!")
@@ -285,18 +284,22 @@ def edit_item(category_id, item_id):
         description = request.form['description']
         category_id = request.form['category']
 
-        has_error = ""
+        has_error = False
         if not name:
-            has_error += "name"
+            has_error = True
+            flash("We need a name!")
         if name in item_names and name != old_name:
-            has_error += "exists"
+            has_error = True
+            flash("Name already exists!")
         if not price:
-            has_error += "price"
+            has_error = True
+            flash("We need a valid price!")
         if not description:
-            has_error += "description"
+            has_error = True
+            flash("We need a description!")
 
         if has_error:
-            return render_template("edit.html", i=item, error=has_error)
+            return render_template("edit.html", i=item)
         else:
             item.name = name
             item.price = price
