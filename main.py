@@ -74,6 +74,14 @@ def get_names():
     return [n[0].encode("utf-8") for n in names]
 
 
+def check_price(price):
+    try:
+        float(price)
+        return True
+    except ValueError:
+        return False
+
+
 @app.route('/login/')
 def login():
     state = ''.join(random.choice(string.ascii_uppercase + string.digits)
@@ -235,7 +243,7 @@ def create_item():
         if name in item_names:
             has_error = True
             flash("Name already exists!")
-        if not price:
+        if not price or not check_price(price):
             has_error = True
             flash("We need a valid price!")
         if not description:
@@ -291,7 +299,7 @@ def edit_item(category_id, item_id):
         if name in item_names and name != old_name:
             has_error = True
             flash("Name already exists!")
-        if not price:
+        if not price or not check_price(price):
             has_error = True
             flash("We need a valid price!")
         if not description:
