@@ -30,6 +30,7 @@ session = DBSession()
 
 
 def create_user(login_session):
+    """ Creates a user in the DB based on gmail credentials """
     new_user = User(name=login_session['username'], email=login_session[
                    'email'])
     session.add(new_user)
@@ -39,11 +40,13 @@ def create_user(login_session):
 
 
 def get_user_info(user_id):
+    """ Gets user infor based on user id """
     user = session.query(User).filter_by(id=user_id).one()
     return user
 
 
 def get_user_id(email):
+    """ Get user id based on email address """
     try:
         user = session.query(User).filter_by(email=email).one()
         return user.id
@@ -52,14 +55,21 @@ def get_user_id(email):
 
 
 def category_by_id(id):
+    """ Get category by category id """
     return session.query(Category).filter_by(id=id).one()
 
 
 def item_by_cat(category_id):
+    """ Get item by category id """
     return session.query(Item).filter_by(category_id=category_id).all()
 
 
 def item_by_id(category_id, item_id):
+    """
+    Get item by item id and check if the category id entered in the URL matches
+    the one stored in the database. Return 404 if false
+    """
+
     item = session.query(Item).filter_by(id=item_id).one()
     if item.category_id != category_id:
         return abort(404)
@@ -68,11 +78,13 @@ def item_by_id(category_id, item_id):
 
 
 def get_names():
+    """ Get the names of every item in the catalog and store them in a list """
     names = session.query(Item.name).all()
     return [n[0].encode("utf-8") for n in names]
 
 
 def check_price(price):
+    """ Check to make sure the price submitted is actually a number """
     try:
         float(price)
         return True
@@ -82,6 +94,7 @@ def check_price(price):
 
 @app.route('/login/')
 def login():
+    """ Take the user to a login template """
     state = ''.join(random.choice(string.ascii_uppercase + string.digits)
                     for x in xrange(32))
     login_session['state'] = state
@@ -90,6 +103,7 @@ def login():
 
 @app.route('/gconnect', methods=['POST'])
 def gconnect():
+    """ Login the user in using their gmail credentials """
     # Validate state token
     if request.args.get('state') != login_session['state']:
         response = make_response(json.dumps('Invalid state parameter.'), 401)
@@ -180,6 +194,7 @@ def gconnect():
 
 @app.route('/gdisconnect')
 def gdisconnect():
+    """ Log the user out """
     access_token = login_session['access_token']
     print 'In gdisconnect access token is %s', access_token
     print 'User name is: '
@@ -213,12 +228,17 @@ def gdisconnect():
 
 @app.route('/')
 def show_catalog():
+    """ Bring the user to the homepage with the top 6 most recent items """
     items = session.query(Item).order_by(Item.created_date.desc()).limit(6)
     return render_template('catalog.html', items=items)
 
 
 @app.route('/new/', methods=['GET', 'POST'])
 def create_item():
+    """
+    Bring the user to the create item page. If all criteria is met, create the
+    item
+    """
     if 'username' not in login_session:
         return redirect('/login')
 
@@ -261,6 +281,7 @@ def create_item():
 
 @app.route('/<int:category_id>/')
 def show_category(category_id):
+    """ Show all the items in a given category """
     items = item_by_cat(category_id)
     return render_template('category.html', items=items,
                            category=category_by_id(category_id))
@@ -268,12 +289,17 @@ def show_category(category_id):
 
 @app.route('/<int:category_id>/<int:item_id>/')
 def show_item(category_id, item_id):
+    """ Show an items page """
     item = item_by_id(category_id, item_id)
     return render_template('item.html', i=item)
 
 
 @app.route('/<int:category_id>/<int:item_id>/edit/', methods=['GET', 'POST'])
 def edit_item(category_id, item_id):
+    """
+    Brings the user to the edit items page. If all of the information provided
+    is valid, it updates the database with the provided information
+    """
     if 'username' not in login_session:
         return redirect('/login')
 
@@ -323,6 +349,10 @@ def edit_item(category_id, item_id):
 
 @app.route('/<int:category_id>/<int:item_id>/delete/', methods=['GET', 'POST'])
 def delete_item(category_id, item_id):
+    """
+    Brings the user to the delete items page, and if they decide to, deletes all
+    information relevant to the item.
+    """
     if 'username' not in login_session:
         return redirect('/login')
     item = item_by_id(category_id, item_id)
@@ -339,6 +369,7 @@ def delete_item(category_id, item_id):
 # JSON routes
 @app.route('/catalog/json/')
 def catalog_json():
+    """ Return the entire catalog in JSON format """
     return jsonify(Keyboards=[k.serialize for k in item_by_cat(1)],
                    Keysets=[k.serialize for k in item_by_cat(2)],
                    Switches=[s.serialize for s in item_by_cat(3)],
@@ -347,11 +378,13 @@ def catalog_json():
 
 @app.route('/<int:category_id>/json/')
 def category_json(category_id):
+    """ Returns all items in a category in a JSON format """
     return jsonify(Items=[i.serialize for i in item_by_cat(category_id)])
 
 
 @app.route('/<int:category_id>/<int:item_id>/json/')
 def item_json(category_id, item_id):
+    """ Returns the selected item in a JSON format """
     item = item_by_id(category_id, item_id)
     return jsonify(Item=item.serialize)
 
