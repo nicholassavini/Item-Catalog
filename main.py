@@ -14,8 +14,6 @@ import httplib2
 import json
 import requests
 
-import os
-from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 
@@ -203,7 +201,6 @@ def gdisconnect():
         del login_session['email']
         del login_session['picture']
         del login_session['user_id']
-        del login_session['_flashes']
         response = make_response(json.dumps('Successfully disconnected.'), 200)
         response.headers['Content-Type'] = 'application/json'
         return redirect("/")
