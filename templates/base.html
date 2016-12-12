@@ -53,15 +53,19 @@
                 <a href="{{url_for('create_item')}}">New Item</a>
             </li>
         </ul>
-        {% with messages = get_flashed_messages() %}
-            {% if messages %}
-                <ul class="errors">
-                {% for message in messages %}
-                    <li class="text-danger">{{ message }}</li>
-                {% endfor %}
-                </ul>
-            {% endif %}
-        {% endwith %}
+        <div class="row">
+            <div class="col-md-12">
+                {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                        <ul class="bg-danger errors">
+                        {% for message in messages %}
+                            <li class="text-center">{{ message }}</li>
+                        {% endfor %}
+                        </ul>
+                    {% endif %}
+                {% endwith %}
+            </div>
+        </div>
         {% block content %}
         {% endblock %}
     </div>
