@@ -8,15 +8,23 @@
     </script>
 {% endblock %}
 {% block content %}
-<div id="signInButton">
-    <span class="g-signin" data-scope="openid email"
-    data-clientid="381455642704-thocu587o9il5agjig37t311nild7pos.apps.googleusercontent.com"
-    data-redirecturi="postmessage" data-accesstype="offline"
-    data-cookiepolicy="single_host_origin" data-callback="signInCallback"
-    data-approvalprompt="force">
-    </span>
+<div class="row">
+  <div class="col-md-12">
+    <div id="signInButton" class="text-center">
+        <span class="g-signin" data-scope="openid email"
+        data-clientid="381455642704-thocu587o9il5agjig37t311nild7pos.apps.googleusercontent.com"
+        data-redirecturi="postmessage" data-accesstype="offline"
+        data-cookiepolicy="single_host_origin" data-callback="signInCallback"
+        data-approvalprompt="force">
+        </span>
+    </div>
+  </div>
 </div>
-<div id="result"></div>
+<div class="row">
+  <div class="col-md-12">
+    <div id="result" class="text-center"></div>
+  </div>
+</div>
 <script>
 function signInCallback(authResult) {
   if (authResult['code']) {
@@ -24,7 +32,9 @@ function signInCallback(authResult) {
     // Hide the sign-in button now that the user is authorized
     $('#signinButton').attr('style', 'display: none');
 
-    // Send the one-time-use code to the server, if the server responds, write a 'login successful' message to the web page and then redirect back to the main restaurants page
+    // Send the one-time-use code to the server, if the server responds,
+    // write a 'login successful' message to the web page and then redirect
+    // back to the main restaurants page
     $.ajax({
       type: 'POST',
       url: '/gconnect?state={{STATE}}',
