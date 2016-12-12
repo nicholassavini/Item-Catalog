@@ -216,6 +216,7 @@ def show_catalog():
     items = session.query(Item).order_by(Item.created_date.desc()).limit(6)
     return render_template('catalog.html', items=items)
 
+
 @app.route('/new/', methods=['GET', 'POST'])
 def create_item():
     if 'username' not in login_session:
